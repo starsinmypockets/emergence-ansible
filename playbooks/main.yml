@@ -1,0 +1,8 @@
+---
+  - hosts: golive 
+    remote_user: vagrant
+    vars:
+      user: vagrant
+    roles: 
+      - { role: emergence, user: "{{ user }}", emr_script_dest : "/home/{{ user }}/tmp/quickinstall-14.04.sh", emr_outpath: /var/emergence/ }
+      - { role: Sencha, user: "{{ user }}" }

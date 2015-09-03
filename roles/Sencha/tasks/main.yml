@@ -1,0 +1,42 @@
+- name: install sencha deps
+  sudo: yes
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - openjdk-7-jre
+    - ruby1.9.3
+    - unzip      
+
+- name: Get sencha zipfile
+  get_url: 
+    url: http://cdn.sencha.com/cmd/3.1.2.342/SenchaCmd-3.1.2.342-linux-x64.run.zip
+    dest: /home/{{ user }}/tmp/SenchaCmd-*-linux-x64.run.zip
+
+- name: Unzip if exists
+  sudo: yes
+  command: sudo -iu {{ user }} cd /home/{{ user }}/tmp/ && unzip SenchaCmd-3.1.2.342-linux-x64.run.zip
+
+- name: Make Sencha executable
+  sudo: yes
+  file:
+    path: /home/{{ user }}/tmp/SenchaCmd-3.1.2.342-linux-x64.run
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: 0755
+
+- name: Run Sencha
+  sudo: yes
+  command: /home/{{ user }}/tmp/SenchaCmd-3.1.2.342-linux-x64.run --mode unattended --prefix /usr/local/bin
+
+- name: Check sencha installer zip exists
+  stat: path=/usr/local/bin/Sencha/Cmd/repo
+  register: st
+
+- debug: var=st
+
+- name: Update ownership for Sencha Cmd Repo
+  file:
+    path: /usr/local/bin/Sencha/Cmd/repo
+    owner: www-data
+    group: www-data
+  when: st.stat.exists == True

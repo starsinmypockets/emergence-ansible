@@ -1,0 +1,32 @@
+- name: Test connection
+  command: id
+
+- name: create tmp dir
+  sudo: yes
+  file:
+    path: /home/{{ user }}/tmp
+    state: directory
+    mode: 0755
+    group: "{{ user }}"
+    owner: "{{ user }}"
+
+- name: Get emergence install script and run
+  get_url: 
+    url: http://emr.ge/dist/ubuntu/quickinstall-14.04.sh
+    dest: "{{ emr_script_dest }}"
+
+- name: Update script mode
+  sudo: yes
+  file: 
+    path: "{{ emr_script_dest }}"
+    mode: ug+x
+
+- name: See if emergence is running
+  sudo: yes
+  command: pgrep -fl emergence
+  register: pgrep_list
+
+- name: Run emergence installer (This will take a few minutes the first time....)
+  sudo: yes
+  command: "{{ emr_script_dest }}"
+  when: "pgrep_list.stdout.find('node') == -1" # check if the emergence kernel node process is running
